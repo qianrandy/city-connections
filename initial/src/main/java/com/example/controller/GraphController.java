@@ -9,7 +9,7 @@ import java.util.LinkedList;
 
 @RestController
 public class GraphController {
-    class Graph {
+    static class Graph {
         private int V; // No. of vertices
 
         // Array  of lists for
@@ -31,16 +31,14 @@ public class GraphController {
         }
 
         // A function used by DFS
-        void DFSUtil(int v, boolean visited[]) {
+        void DFSUtil(int v, boolean[] visited) {
             // Mark the current node as visited and print it
             visited[v] = true;
             System.out.print(v + " ");
 
             // Recur for all the vertices adjacent to this
             // vertex
-            Iterator<Integer> i = adj[v].listIterator();
-            while (i.hasNext()) {
-                int n = i.next();
+            for (int n : adj[v]) {
                 if (!visited[n])
                     DFSUtil(n, visited);
             }
@@ -70,13 +68,13 @@ public class GraphController {
         g.addEdge(5, 7);
         g.addEdge(3, 5);
         g.addEdge(7, 4);
-        g.addEdge(1, 3);
+        g.addEdge(3, 2);
 
         System.out.println(
                 "Following is Depth First Traversal "
                         + "(starting from vertex 2)");
 
-        g.DFS(1);
+        g.DFS(3);
     }
 
 }
