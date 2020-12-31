@@ -1,80 +1,77 @@
 package com.example.controller;
 
+import com.example.entity.Graph;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Iterator;
-import java.util.LinkedList;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.*;
 
 @RestController
 public class GraphController {
-    static class Graph {
-        private int V; // No. of vertices
-
-        // Array  of lists for
-        // Adjacency List Representation
-        private LinkedList<Integer> adj[];
-
-        // Constructor
-        @SuppressWarnings("unchecked")
-        Graph(int v) {
-            V = v;
-            adj = new LinkedList[v];
-            for (int i = 0; i < v; ++i)
-                adj[i] = new LinkedList<Integer>();
-        }
-
-        // Function to add an edge into the graph
-        void addEdge(int v, int w) {
-            adj[v].add(w); // Add w to v's list.
-        }
-
-        // A function used by DFS
-        void DFSUtil(int v, boolean[] visited) {
-            // Mark the current node as visited and print it
-            visited[v] = true;
-            System.out.print(v + " ");
-
-            // Recur for all the vertices adjacent to this
-            // vertex
-            for (int n : adj[v]) {
-                if (!visited[n])
-                    DFSUtil(n, visited);
-            }
-        }
-
-        // The function to do DFS traversal.
-        // It uses recursive
-        // DFSUtil()
-        void DFS(int v) {
-            // Mark all the vertices as
-            // not visited(set as
-            // false by default in java)
-            boolean visited[] = new boolean[V];
-
-            // Call the recursive helper
-            // function to print DFS
-            // traversal
-            DFSUtil(v, visited);
-        }
-    }
 
     @RequestMapping("/graph-connected")
     public void getConnection(@RequestParam String origin, @RequestParam String destination) {
-        Graph g = new Graph(8);
-        g.addEdge(4, 1);
-        g.addEdge(6, 2);
-        g.addEdge(5, 7);
-        g.addEdge(3, 5);
-        g.addEdge(7, 4);
-        g.addEdge(3, 2);
+
+        //Read cities from file and construct a mapping
+        Map<Integer, String> searchMap = new HashMap();
+        String root = origin;
+        Integer start = 0;
+
+        try {
+            Resource resource = new ClassPathResource("city.txt");
+            File file = resource.getFile();
+            Scanner scanner = new Scanner(new FileReader(file));
+            while (scanner.hasNextLine()) {
+                String line = scanner.nextLine();
+                String[] strs = line.split(",");
+                if(!searchMap.containsValue(strs[0])){
+                    searchMap.put(start, strs[0]);
+                    start++;
+                }
+                if(!searchMap.containsValue(strs[1])){
+                    searchMap.put(start, strs[1]);
+                    start++;
+                }
+
+                /*map.putIfAbsent(strs[0], new HashSet<>());
+                map.get(strs[0]).add(strs[1]);
+                searchMap.putIfAbsent(strs[1], new HashSet<>());
+                searchMap.get(strs[1]).add(strs[0]);*/
+            }
+            scanner.close();
+        } catch (IOException e) { }
+
+
+
+        Graph g;
+        g = new Graph();
+        g.addVertex("Boston");
+        g.addVertex("New York");
+        g.addVertex("Philadelphia");
+        g.addVertex("Newark");
+        g.addVertex("Trenton");
+        g.addVertex("Albany");
+
+        g.addEdge("Boston", "New York");
+        g.addEdge("Philadelphia", "Newark");
+        g.addEdge("Newark", "Boston");
+        g.addEdge("Trenton", "Albany");
+        g.addEdge("New York", "Boston");
+        g.addEdge("Newark", "Philadelphia");
+        g.addEdge("Boston", "Newark");
+        g.addEdge("Albany", "Trenton");
 
         System.out.println(
                 "Following is Depth First Traversal "
                         + "(starting from vertex 2)");
 
-        g.DFS(3);
+        System.out.println(g.breadthFirstTraversal(g, "Boston").toString());
     }
 
 }
