@@ -15,11 +15,15 @@ import java.util.*;
 @RestController
 public class GraphController {
 
-    @RequestMapping("/graph-connected")
-    public void getConnection(@RequestParam String origin, @RequestParam String destination) {
+    private Graph g;
 
-        //Read cities from file and construct a mapping
-        Map<Integer, String> searchMap = new HashMap();
+    {
+        g = new Graph();
+    }
+
+    @RequestMapping("/graph-connected")
+    public String getConnection(@RequestParam String origin, @RequestParam String destination) {
+
         String root = origin;
         Integer start = 0;
 
@@ -29,49 +33,23 @@ public class GraphController {
             Scanner scanner = new Scanner(new FileReader(file));
             while (scanner.hasNextLine()) {
                 String line = scanner.nextLine();
-                String[] strs = line.split(",");
-                if(!searchMap.containsValue(strs[0])){
-                    searchMap.put(start, strs[0]);
-                    start++;
-                }
-                if(!searchMap.containsValue(strs[1])){
-                    searchMap.put(start, strs[1]);
-                    start++;
-                }
-
-                /*map.putIfAbsent(strs[0], new HashSet<>());
-                map.get(strs[0]).add(strs[1]);
-                searchMap.putIfAbsent(strs[1], new HashSet<>());
-                searchMap.get(strs[1]).add(strs[0]);*/
+                String[] cities = line.split(",");
+                String city0 = cities[0].trim();
+                String city1 = cities[1].trim();
+                g.addVertex(city0);
+                g.addVertex(city1);
+                g.addEdge(city0, city1);
+                g.addEdge(city1, city0);
             }
             scanner.close();
         } catch (IOException e) { }
 
 
+        Set<String> connected = g.breadthFirstTraversal(g, root);
+        if(connected.contains(destination))
+            return "yes";
 
-        Graph g;
-        g = new Graph();
-        g.addVertex("Boston");
-        g.addVertex("New York");
-        g.addVertex("Philadelphia");
-        g.addVertex("Newark");
-        g.addVertex("Trenton");
-        g.addVertex("Albany");
-
-        g.addEdge("Boston", "New York");
-        g.addEdge("Philadelphia", "Newark");
-        g.addEdge("Newark", "Boston");
-        g.addEdge("Trenton", "Albany");
-        g.addEdge("New York", "Boston");
-        g.addEdge("Newark", "Philadelphia");
-        g.addEdge("Boston", "Newark");
-        g.addEdge("Albany", "Trenton");
-
-        System.out.println(
-                "Following is Depth First Traversal "
-                        + "(starting from vertex 2)");
-
-        System.out.println(g.breadthFirstTraversal(g, "Boston").toString());
+        return "no";
     }
 
 }

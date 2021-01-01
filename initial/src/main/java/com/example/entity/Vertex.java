@@ -10,6 +10,7 @@ import lombok.ToString;
 class Vertex {
     String label;
     Vertex(String label) {
+
         this.label = label;
     }
 }
